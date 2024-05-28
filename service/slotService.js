@@ -13,19 +13,15 @@ export const getSlots = async (req, res) => {
 
 export const bookSlot = async (req, res) => {
   try {
-    const { date, slot, bookedBy, name, phoneNumber, email } = req.body;
+    const { date, slot, ...others } = req.body;
     const newBooking = {
       date: date,
-      slot: [...slot],
-      bookedBy: bookedBy,
-      name: name,
-      phoneNumber: phoneNumber,
-      email: email,
+      slots: [{ slot, boodkedBy: { ...others } }],
     };
     await Slot.create(newBooking);
     res.status(200).json({ message: "Booking request post successfully" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw error;
   }
 };
