@@ -1,4 +1,5 @@
 import Slot from "../model/Slot.js";
+import User from "../model/User.js";
 
 export const getSlots = async (req, res) => {
   try {
@@ -33,7 +34,7 @@ export const bookSlot = async (req, res) => {
   try {
     const { date, slot, ...others } = req.body;
     const slots = await Slot.find({ date: date });
-    const isBooked = req.user.type === "Admin" ? true : false;
+    const isBooked = await User.find({_id:req.user.id}).then(data=> data[0].type === "Admin" ?  true :  false)
     if (!slots.length) {
       const newBooking = {
         date: date,
