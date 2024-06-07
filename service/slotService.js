@@ -34,7 +34,9 @@ export const bookSlot = async (req, res) => {
   try {
     const { date, slot, ...others } = req.body;
     const slots = await Slot.find({ date: date });
-    const isBooked = await User.find({_id:req.user.id}).then(data=> data[0].type === "Admin" ?  true :  false)
+    const isBooked = await User.find({ _id: req.user.id }).then((data) =>
+      data[0]?.type === "Admin" ? true : false
+    );
     if (!slots.length) {
       const newBooking = {
         date: date,
@@ -52,6 +54,28 @@ export const bookSlot = async (req, res) => {
     res.status(200).json({ message: "Booking request post successfully" });
   } catch (error) {
     console.log(error);
+    throw error;
+  }
+};
+
+export const requestedSlots = async (req, res, next) => {
+  try {
+    const slots = await Slot.find();
+    let today = new Date();
+    // console.log(slots, "slots");
+    const pendingSlots = slots
+      .filter((item) => {
+        const date1 = new Date(item.date).toISOString().slice(0, 10);
+        const date2 = new Date(today).toISOString().slice(0, 10);
+        if (date1 >= date2) return item;
+        else return;
+      })
+      .map((item) => {
+        return item.slots.filter((item2,index)=>!item2.isBooked ? item: null)
+      });
+    console.log("pending", pendingSlots);
+    res.status(200).json(pendingSlots);
+  } catch (error) {
     throw error;
   }
 };
