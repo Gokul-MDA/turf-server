@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Slot from "../model/Slot.js";
 import User from "../model/User.js";
 
@@ -40,7 +41,7 @@ export const bookSlot = async (req, res) => {
     if (!slots.length) {
       const newBooking = {
         date: date,
-        slots: [{ ...slot, bookedBy: req.user, isBooked: isBooked }],
+        slots: [{ ...slot, id: new mongoose.Types.ObjectId(), bookedBy: req.user, isBooked: isBooked }],
       };
       await Slot.create(newBooking);
     } else {
@@ -68,9 +69,8 @@ export const requestedSlots = async (req, res, next) => {
         const date1 = new Date(item.date).toISOString().slice(0, 10);
         const date2 = new Date(today).toISOString().slice(0, 10);
         if (date1 >= date2) return item;
-        else return;
-      })
-      .map((item) => {
+        // else return null;
+      }).map((item) => {
         return item.slots.filter((item2,index)=>!item2.isBooked ? item: null)
       });
     console.log("pending", pendingSlots);
@@ -79,3 +79,14 @@ export const requestedSlots = async (req, res, next) => {
     throw error;
   }
 };
+
+export const approveSlot = async(req, res)=>{
+try {
+  const id = req.body.id
+  const temp = await Slot.find({id:id})
+  console.log(temp)
+  res.end()
+} catch (error) {
+  throw error
+}
+}
