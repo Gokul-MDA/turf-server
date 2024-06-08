@@ -71,10 +71,15 @@ export const requestedSlots = async (req, res, next) => {
         if (date1 >= date2) return item;
         // else return null;
       }).map((item) => {
-        return item.slots.filter((item2,index)=>!item2.isBooked ? item: null)
+        return item.slots.filter((item2,index)=>{
+          if(!item2.isBooked){
+            item2.parentId = item._id
+            return item2
+          }
+        })
       });
-    console.log("pending", pendingSlots);
-    res.status(200).json(pendingSlots);
+    console.log("pending", ...pendingSlots);
+    res.status(200).json(...pendingSlots);
   } catch (error) {
     throw error;
   }
