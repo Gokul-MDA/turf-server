@@ -48,7 +48,7 @@ export const bookSlot = async (req, res) => {
       await Slot.updateOne(
         { date: date },
         {
-          $push: { slots: { ...slot, bookedBy: req.user, isBooked: isBooked } },
+          $push: { slots: { ...slot, id: new mongoose.Types.ObjectId(), bookedBy: req.user, isBooked: isBooked } },
         }
       );
     }
@@ -87,8 +87,20 @@ export const requestedSlots = async (req, res, next) => {
 
 export const approveSlot = async(req, res)=>{
 try {
-  const id = req.body.id
-  const temp = await Slot.find({id:id})
+  const {parentId, id} = req.body
+  console.log(parentId, id, "akdsjf;l")
+  
+  const filter = {
+    "_id": new mongoose.Types.ObjectId(parentId),
+    "slots.id": new mongoose.Types.ObjectId(id)
+  };
+  const updateDoc = {
+    $set: {
+      "slots.$.isBooked": true
+    }
+  };
+
+  const temp = await Slot.findOneAndUpdate(filter, updateDoc, { returnOriginal: false })
   console.log(temp)
   res.end()
 } catch (error) {
